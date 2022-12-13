@@ -3,8 +3,10 @@ const jwt = require("jsonwebtoken")
 const bcrypt = require('bcrypt');
 const cors = require("cors")
 
-const { connection } = require('mongoose');
+
+const { connection } = require('./server');
 const { UserModel } = require('./models/UsersModel.model');
+const {PhoneRouter}=require('./routes/PhonesRoute.route')
 
 
 const app=express();
@@ -16,7 +18,7 @@ app.use(cors({
 app.post("/signup",async (req,res)=>{
     const {email,password,name}=req.body;
     const userCheck=await UserModel.findOne({email})
-    if(userCheck.length>0){
+    if(userCheck?.email){
         res.send("User Already Exists")
     }
     try{
@@ -35,7 +37,7 @@ app.post("/login",async (req,res)=>{
 
 })
 
-
+app.use("/phones",PhoneRouter)
 
 
 
