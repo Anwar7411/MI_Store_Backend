@@ -9,6 +9,7 @@ const { connection } = require('./server');
 const { UserModel } = require('./models/UsersModel.model');
 const {PhoneRouter}=require('./routes/PhonesRoute.route');
 const {Auth}=require("./middlewares/Authorization")
+const {TvRouter}=require("./routes/TvRoute.route")
 
 const PORT=process.env.PORT || 8080
 const app=express();
@@ -63,7 +64,7 @@ app.post("/login",async (req,res)=>{
 })
 
 app.use("/phones",PhoneRouter)
-
+app.use("/tv",TvRouter)
 
 
 
