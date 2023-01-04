@@ -1,14 +1,16 @@
 const express=require('express');
 const jwt = require("jsonwebtoken")
 const bcrypt = require('bcrypt');
-const cors = require("cors")
+const cors = require("cors");
+require('dotenv').config();
 
 
 const { connection } = require('./server');
 const { UserModel } = require('./models/UsersModel.model');
-const {PhoneRouter}=require('./routes/PhonesRoute.route')
+const {PhoneRouter}=require('./routes/PhonesRoute.route');
+const {Auth}=require("./middlewares/Authorization")
 
-
+const PORT=process.env.PORT || 8080
 const app=express();
 app.use(express.json())
 app.use(cors({
@@ -16,14 +18,15 @@ app.use(cors({
 }))
 
 app.post("/signup",async (req,res)=>{
-    const {email,password,name}=req.body;
-    const userCheck=await UserModel.findOne({email})
+    const payload=req.body;
+    const userCheck=await UserModel.findOne({email:`${payload.email}`})
     if(userCheck?.email){
         res.send("User Already Exists")
     }
     try{
-        bcrypt.hash(myPlaintextPassword, saltRounds,async function(err, hash) {
-            const userdata=new UserModel({name,email,password:hash});
+        bcrypt.hash(password, 5,async function(err, hash) {
+            payload.password=hash;
+            const userdata=new UserModel(payload);
             await userdata.save();
             res.send("Signup Successfull")
         })
@@ -34,7 +37,29 @@ app.post("/signup",async (req,res)=>{
 })
 
 app.post("/login",async (req,res)=>{
-
+    const payload=req.body;
+    const usercheck=await UserModel.findOne({email:`${payload.email}`});
+    try{
+        if(usercheck?.email){
+            const hashed_password = usercheck.password;
+            bcrypt.compare(payload.password, hashed_password, function(err, result) {
+                if(err){
+                    res.send("Something went wrong please try again later!");
+                    console.log("Error in bcrypt",err)
+                }
+                if(result){
+                    const token = jwt.sign({ userDetails:payload  }, `${process.env.secret_key}`);
+                    res.send({msg:"Login Successfull",token:token})
+                }
+             })}else{
+                res.send("Something went wrong please try again later!");
+             } 
+    }
+    catch(err){
+        res.send("Login Failed!");
+        console.log(err)
+    }
+   
 })
 
 app.use("/phones",PhoneRouter)
@@ -43,7 +68,7 @@ app.use("/phones",PhoneRouter)
 
 
 
-app.listen(8080,async ()=>{
+app.listen(PORT,async ()=>{
     try{
         await connection;
         console.log("Connected to DataBase")
