@@ -14,8 +14,8 @@ PhoneRouter.get("/",async (req,res)=>{
         console.log(page,filter,limit,order)
        if(filter){
         const data= await PhonesModel.find({brand:filter}).limit(limit).skip(limit*(page-1)).sort({price:order});
-        const count1=await  PhonesModel.find();
-        const count=count1.length
+        const count=data.length
+        console.log("count",count)
         res.send({data:data,count:count})
        }else{
         const data= await PhonesModel.find().limit(limit).skip(limit*(page-1)).sort({price:order});
