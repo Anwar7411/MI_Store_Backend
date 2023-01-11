@@ -26,7 +26,7 @@ app.post("/signup",async (req,res)=>{
         res.send("User Already Exists")
     }
     try{
-        bcrypt.hash(password, 5,async function(err, hash) {
+        bcrypt.hash(payload.password, 5,async function(err, hash) {
             payload.password=hash;
             const userdata=new UserModel(payload);
             await userdata.save();
@@ -34,6 +34,7 @@ app.post("/signup",async (req,res)=>{
         })
     }
     catch(err){
+        console.log(err)
         res.send("Something went wrong Please try again later!")
     }
 })
@@ -51,7 +52,7 @@ app.post("/login",async (req,res)=>{
                 }
                 if(result){
                     const token = jwt.sign({ userDetails:payload  }, `${process.env.secret_key}`);
-                    res.send({msg:"Login Successfull",token:token})
+                    res.send({msg:"Login Successfull",token:token,userDetails:usercheck})
                 }
              })}else{
                 res.send("Something went wrong please try again later!");
