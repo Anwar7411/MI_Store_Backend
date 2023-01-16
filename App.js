@@ -11,6 +11,8 @@ const {PhoneRouter}=require('./routes/PhonesRoute.route');
 const {Auth}=require("./middlewares/Authorization")
 const {TvRouter}=require("./routes/TvRoute.route")
 const {StripRouter}=require('./routes/Strip.route')
+const {LaptopRouter}=require('./routes/LaptopRoute.route')
+const {Search}=require('./routes/Searchbar.route')
 
 const PORT=process.env.PORT || 8080
 const app=express();
@@ -67,8 +69,10 @@ app.post("/login",async (req,res)=>{
 
 app.use("/phones",PhoneRouter)
 app.use("/tv",TvRouter)
+app.use("/laptop",LaptopRouter)
+app.use("/search",Search)
+app.use(Auth)
 app.use("/strip",StripRouter)
-
 
 
 

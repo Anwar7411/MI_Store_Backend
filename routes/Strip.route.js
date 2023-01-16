@@ -7,6 +7,7 @@ require('dotenv').config();
 const stripe=Strip(process.env.strip_key);
 const StripRouter=express.Router();
 StripRouter.post('/create-checkout-session', async (req, res) => {
+ 
     const line_items=req.body?.cartitem?.map(prod=>(
       { 
         price_data: 
@@ -23,18 +24,16 @@ StripRouter.post('/create-checkout-session', async (req, res) => {
        quantity: +(prod.quantity),
      }
      ))
-    
+ 
     const session = await stripe.checkout.sessions.create({
       line_items,
       mode: 'payment',
       success_url: `${process.env.url}/paymentsuccess`,
       cancel_url: `${process.env.url}/paymentfail`,
     });
-    console.log(session)
-     if(session.url==`${process.env.url}/paymentsuccess`){
-      // const order=await OrderModel.create(line_items)
-      
-     }
+     
+       const order=await OrderModel.create(req.body.cartitem)    
+     
     res.send({url:session.url});
   });
 
